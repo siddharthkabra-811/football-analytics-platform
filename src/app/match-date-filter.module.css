@@ -1,0 +1,40 @@
+.filters label {
+  display: block;
+  margin-bottom: 6px;
+  color: #b6c4da;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.controls input,
+.controls button,
+.controls a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 13px;
+  border: 1px solid #435574;
+  border-radius: 8px;
+  background: #0e192c;
+  color: inherit;
+  font: 600 13px var(--font-ui), Arial, sans-serif;
+  text-decoration: none;
+}
+
+.controls input { min-width: 0; max-width: 100%; }
+.controls button {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #111731;
+  cursor: pointer;
+}
+
+.controls button:hover { background: #eeff86; }
+.controls a:hover { border-color: var(--accent); }

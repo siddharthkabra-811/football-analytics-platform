@@ -1,0 +1,29 @@
+:root {
+  color-scheme: light;
+  --surface: #f7f8ff;
+  --ink: #111731;
+  --muted-ink: #475477;
+  --divider: #d9e0fd;
+  --accent: #dfff36;
+  --focus: #263fe7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-ui), Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
