@@ -1,0 +1,362 @@
+.page {
+  --header-height: 77px;
+  position: relative;
+}
+
+.headerInner,
+.heroInner {
+  position: relative;
+  width: min(100% - clamp(40px, 14vw, 200px), 1240px);
+  margin-inline: auto;
+}
+
+.header {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  color: white;
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--header-height);
+  border-bottom: 1px solid #dfe8ff33;
+}
+
+.brand,
+.navLink,
+.browseLink {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brandMark {
+  flex: none;
+}
+
+.brandWordmark {
+  display: flex;
+  align-items: center;
+}
+
+.brandName {
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.header :focus-visible {
+  outline-color: var(--accent);
+}
+
+.resultsHeader {
+  position: relative;
+  --header-height: 77px;
+}
+
+.resultsHeader .navLink[aria-current] {
+  border-color: #dfff3666;
+  background: #dfff3610;
+  color: var(--accent);
+}
+
+.navLink,
+.browseLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 8px;
+  min-height: 44px;
+  font-size: 15px;
+}
+
+.navLink {
+  padding-inline: 14px;
+  border: 1px solid #b7c7eb69;
+  border-radius: 999px;
+  background: #0d1935bb;
+}
+
+.navLink svg {
+  color: var(--accent);
+}
+
+.navLink:hover {
+  background: #2c4087;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  padding-block-start: var(--header-height);
+  background: #0d1b29;
+  color: white;
+}
+
+.artwork {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(ellipse at 92% 19%, #fff4dc, transparent 38%);
+  opacity: .055;
+  pointer-events: none;
+  content: "";
+}
+
+.artwork::before,
+.artwork::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.artwork::before {
+  background: url("/stadium/matchday.webp") center 55% / cover no-repeat;
+}
+
+.artwork::after {
+  background:
+    linear-gradient(180deg, #071021e8, #0710216b 15%, transparent 34%),
+    linear-gradient(90deg, #071021 7%, #091326e8 31%, #09132663 64%, transparent 94%),
+    linear-gradient(0deg, #071021a8, transparent 50%);
+}
+
+.artwork {
+  background: #0d1b29;
+}
+
+.heroInner {
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding-block: 52px;
+}
+
+.heroCategory {
+  margin: 0 0 16px;
+  color: #d3dcf3;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.title {
+  font-size: clamp(60px, 7.9vw, 115px);
+  line-height: .86;
+  letter-spacing: -.025em;
+  text-transform: uppercase;
+}
+
+.title span {
+  display: block;
+  margin-top: 6px;
+  color: var(--accent);
+}
+
+.title .titleLead {
+  margin-top: 0;
+  color: inherit;
+}
+
+.description {
+  max-width: 39ch;
+  margin: 24px 0 26px;
+  color: #dce7f0;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.browseLink {
+  justify-content: center;
+  gap: 16px;
+  min-width: 160px;
+  min-height: 48px;
+  border-radius: 999px;
+  padding-inline: 16px;
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.browseLink:hover {
+  background: #efff8c;
+}
+
+.browseLink:focus-visible {
+  outline-color: white;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .artwork {
+    animation: stadium-arrival .95s ease-out both;
+  }
+
+  .hero::before {
+    animation: floodlight-arrival 1.5s ease-out both;
+  }
+
+  .heroCategory,
+  .description,
+  .browseLink {
+    animation: copy-arrival .55s var(--copy-delay, 60ms) cubic-bezier(.2, .7, .2, 1) both;
+  }
+
+  .title span {
+    animation: headline-arrival .68s cubic-bezier(.2, .7, .2, 1) both;
+  }
+
+  .title span + span {
+    animation-delay: .14s;
+  }
+
+  .description {
+    --copy-delay: .28s;
+  }
+
+  .browseLink {
+    --copy-delay: .38s;
+  }
+
+  .browseLink:focus-visible {
+    animation: none;
+  }
+}
+
+@keyframes stadium-arrival {
+  from {
+    opacity: .6;
+    transform: scale(1.022);
+  }
+}
+
+@keyframes floodlight-arrival {
+  0% { opacity: 0; }
+  46% { opacity: .22; }
+}
+
+@keyframes headline-arrival {
+  from {
+    opacity: .66;
+    clip-path: inset(0 0 38% 0);
+    transform: translateY(9px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(-12% 0 -12% 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes copy-arrival {
+  from {
+    opacity: .68;
+    transform: translateY(8px);
+  }
+}
+
+@supports (animation-timeline: view()) and (animation-range: exit 0% exit 100%) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero {
+      view-timeline: --stadium block;
+    }
+
+    .artwork::before {
+      animation: stadium-camera auto linear both;
+      animation-timeline: --stadium;
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+
+@keyframes stadium-camera {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: translateY(64px) scale(1.09);
+  }
+}
+
+@media (max-width: 700px) {
+  .headerInner,
+  .heroInner {
+    width: calc(100% - 40px);
+  }
+
+  .brand {
+    gap: 9px;
+  }
+
+  .brandMark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brandName {
+    font-size: 25px;
+  }
+
+  .navLink {
+    gap: 6px;
+    padding-inline: 10px;
+    font-size: 14px;
+  }
+
+  .heroInner {
+    min-height: 450px;
+    padding-block: 36px;
+  }
+
+  .title {
+    font-size: clamp(47px, 13vw, 76px);
+  }
+
+  .description {
+    margin-block: 21px 24px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .artwork::before {
+    background-position: 63% center;
+  }
+
+  .artwork::after {
+    background:
+      linear-gradient(180deg, #071021e8, #0710214d 18%, transparent 34%),
+      linear-gradient(90deg, #091326d9, #09132670 82%),
+      linear-gradient(0deg, #071021b0, transparent 60%);
+  }
+}

@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="390" height="515" viewBox="0 0 390 515" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Hero contrast overlay" clip-path="url(#clip0_0_4)">
+<path id="Vector" d="M390 0H0V515H390V0Z" fill="url(#paint0_linear_0_4)"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_4" x1="0" y1="0" x2="0" y2="515" gradientUnits="userSpaceOnUse">
+<stop stop-color="#08142D" stop-opacity="0.94"/>
+<stop offset="0.46" stop-color="#08142D" stop-opacity="0.78"/>
+<stop offset="0.78" stop-color="#08142D" stop-opacity="0.19"/>
+<stop offset="1" stop-color="#08142D" stop-opacity="0.06"/>
+</linearGradient>
+<clipPath id="clip0_0_4">
+<rect width="390" height="515" fill="white"/>
+</clipPath>
+</defs>
+</svg>

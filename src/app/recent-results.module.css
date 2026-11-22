@@ -1,0 +1,400 @@
+.section {
+  --panel: #111d33;
+  --panel-edge: #2b3a53;
+  --secondary: #b6c4da;
+  position: relative;
+  overflow: clip;
+  isolation: isolate;
+  color: #f4f7ff;
+  background:
+    radial-gradient(ellipse at 94% 4%, #233752 0, transparent 48%),
+    linear-gradient(175deg, #0b1426, #111c30);
+  color-scheme: dark;
+}
+
+.section::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  z-index: 1;
+  background: linear-gradient(90deg, transparent, #829f6f, transparent);
+  content: "";
+}
+
+.section::after {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    linear-gradient(180deg, #0b1426ee, #0b14264d 24%, #0d192bdb 82%, #111c30),
+    linear-gradient(90deg, #0b1426f0, #0b142688 48%, #111c3050),
+    url("/stadium/overhead.webp") 65% 47% / cover no-repeat;
+  opacity: .72;
+  pointer-events: none;
+  content: "";
+}
+
+.inner {
+  position: relative;
+  width: min(100% - clamp(40px, 14vw, 200px), 1240px);
+  margin-inline: auto;
+  padding-block: 48px 72px;
+}
+
+.pitchReveal {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto auto;
+  width: min(58vw, 680px);
+  color: var(--accent);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.trajectory,
+.pitchLines {
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.trajectory {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.pitchLines {
+  opacity: 0;
+}
+
+@supports (animation-timeline: view()) and (animation-range: entry 0% entry 100%) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section {
+      view-timeline: --matchday block;
+    }
+
+    .section::after {
+      animation: matchday-camera auto linear both;
+      animation-timeline: --matchday;
+      animation-range: entry 0% entry 82%;
+    }
+
+    .pitchReveal {
+      opacity: .28;
+    }
+
+    .trajectory {
+      animation: draw-trajectory auto linear both;
+      animation-timeline: --matchday;
+      animation-range: entry 7% entry 72%;
+    }
+
+    .pitchLines {
+      animation: reveal-pitch auto linear both;
+      animation-timeline: --matchday;
+      animation-range: entry 48% entry 85%;
+    }
+  }
+}
+
+@keyframes draw-trajectory {
+  0% { stroke-dashoffset: 1; }
+  64% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes reveal-pitch {
+  to { opacity: .55; }
+}
+
+@keyframes matchday-camera {
+  from {
+    opacity: .08;
+    transform: scale(1.06);
+  }
+
+  to {
+    opacity: .9;
+    transform: scale(1);
+  }
+}
+
+.header {
+  padding-block-end: 18px;
+  border-bottom: 1px solid var(--panel-edge);
+}
+
+.competition {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 0;
+  font: 700 clamp(46px, 5.2vw, 74px)/.94 var(--font-display), "Arial Narrow", sans-serif;
+  letter-spacing: -.018em;
+  text-transform: uppercase;
+}
+
+.headingRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.section :focus-visible {
+  outline-color: var(--accent);
+}
+
+.matchdayLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-block: 20px 13px;
+}
+
+.matchdayLabel h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.matchdayLabel span {
+  color: var(--secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.matchGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.matchCard {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 15px;
+  min-width: 0;
+  border: 1px solid var(--panel-edge);
+  border-radius: 12px;
+  background:
+    radial-gradient(ellipse at 50% 100%, #263855 0, transparent 72%),
+    linear-gradient(160deg, #16253f, var(--panel));
+  box-shadow: 0 12px 22px #060d1c33;
+}
+
+.matchLink {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 15px;
+  width: 100%;
+  min-width: 0;
+  padding: 15px 16px 21px;
+  border-radius: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .matchCard:hover {
+    border-color: color-mix(in srgb, var(--accent) 48%, var(--panel-edge));
+    box-shadow: 0 9px 25px #060d1c66;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heading[data-entered="true"],
+  .matchCard[data-entered="true"] {
+    animation: results-arrival .55s var(--entrance-delay, 0ms) cubic-bezier(.2, .7, .2, 1) both;
+  }
+
+  .matchCard {
+    transition: border-color .2s, box-shadow .2s, translate .2s;
+  }
+
+  .matchCard[data-entered="true"] .finalStatus::before {
+    animation: status-glow .7s calc(var(--entrance-delay, 0ms) + .35s) ease-out;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .matchCard:hover { translate: 0 -3px; }
+  }
+}
+
+@keyframes results-arrival {
+  from {
+    opacity: .68;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes status-glow {
+  45% { box-shadow: 0 0 9px 2px #dfff364d; }
+}
+
+.finalStatus {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.finalStatus::before {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  content: "";
+}
+
+.matchup {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(7px, 1vw, 14px);
+}
+
+.team {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.teamName {
+  overflow-wrap: anywhere;
+}
+
+.teamBadge {
+  display: grid;
+  width: 49px;
+  height: 55px;
+  place-items: center;
+  color: var(--secondary);
+  font: 700 19px/1 var(--font-display), "Arial Narrow", sans-serif;
+}
+
+.teamBadge img {
+  width: 42px;
+  height: 42px;
+}
+
+.score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding-top: 4px;
+  font: 700 clamp(35px, 4.4vw, 58px)/.9 var(--font-display), "Arial Narrow", sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.scoreSeparator {
+  color: var(--secondary);
+  font: 600 clamp(11px, 1.2vw, 15px)/1 var(--font-ui), Arial, sans-serif;
+}
+
+.emptyResults {
+  padding: 22px;
+  border: 1px solid var(--panel-edge);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.emptyResults p {
+  margin: 0 0 9px;
+}
+
+.emptyResults a {
+  color: var(--accent);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 1000px) {
+  .matchGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .inner {
+    width: calc(100% - 40px);
+    padding-block: 34px 52px;
+  }
+}
+
+@media (max-width: 560px) {
+  .matchGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dateForm {
+    width: 100%;
+  }
+
+  .dateForm input {
+    flex: 1 1 auto;
+  }
+
+  .score {
+    font-size: 48px;
+  }
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.more a {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding-inline: 17px;
+  border: 1px solid #3b4b66;
+  border-radius: 8px;
+  background: #162238;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.more a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
