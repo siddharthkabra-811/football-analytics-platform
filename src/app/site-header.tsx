@@ -3,7 +3,7 @@ import Link from "next/link";
 import { brand } from "./brand";
 import styles from "./home.module.css";
 
-export function SiteHeader({ onResults = false }: { onResults?: boolean }) {
+export function SiteHeader({ onResults = false }: Readonly<{ onResults?: boolean }>) {
   return (
     <header className={onResults ? `${styles.header} ${styles.resultsHeader}` : styles.header}>
       <div className={styles.headerInner}>
@@ -17,11 +17,11 @@ export function SiteHeader({ onResults = false }: { onResults?: boolean }) {
           {onResults ? (
             <Link className={styles.navLink} href="/results" aria-current="page">Matches</Link>
           ) : (
-            <a className={styles.navLink} href="#recent-results">
+            <a className={styles.navLink} href="/results">
               Matches
-              <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              {/* <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M8 3.5v9m-3.5-3.5L8 12.5l3.5-3.5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              </svg> */}
             </a>
           )}
         </nav>
