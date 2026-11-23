@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import filterStyles from "../match-date-filter.module.css";
 import { getPremierLeagueResults, isMatchDate } from "../pitch-api";
@@ -6,10 +5,13 @@ import { SiteHeader } from "../site-header";
 import { ClubCrest } from "../club-crest";
 import { matchHref } from "../match-navigation";
 import styles from "./results.module.css";
+import { shareMetadata } from "../share-metadata";
 
-export const metadata: Metadata = {
-  title: "Premier League Results | Ninety Atlas",
-};
+export const metadata = shareMetadata(
+  "/results",
+  "Premier League Results | Ninety Atlas",
+  "Browse Premier League scores and open each match for line-ups, shots, expected goals, and more.",
+);
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "full",

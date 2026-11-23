@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { brand } from "./brand";
 import "./globals.css";
+import { shareMetadata, siteUrl } from "./share-metadata";
 
 const inter = localFont({
   src: "./fonts/inter-latin.woff2",
@@ -19,8 +20,8 @@ const barlowCondensed = localFont({
 });
 
 export const metadata: Metadata = {
-  title: brand.name,
-  description: brand.description,
+  metadataBase: siteUrl,
+  ...shareMetadata("/", brand.name, brand.description),
   icons: { icon: brand.mark },
 };
 
