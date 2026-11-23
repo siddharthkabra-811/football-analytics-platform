@@ -108,7 +108,7 @@
 .direction span { color: var(--shot-color); font-weight: 600; }
 .direction span:last-child { text-align: right; }
 
-.filters button, .goalsFilter, .mapFilters select, .inspector select {
+.filters button, .goalsFilter {
   min-height: 44px;
   padding: 8px 12px;
   border: 1px solid #526580;
@@ -122,8 +122,6 @@
 .filters button:hover, .goalsFilter:hover { border-color: #90accb; }
 .filters button[aria-pressed="true"] { background: var(--accent); color: #111731; border-color: var(--accent); }
 .mapFilters { display: flex; flex-wrap: wrap; gap: 8px; margin-inline-start: auto; }
-.mapFilters select { color-scheme: dark; }
-.mapFilters select:focus-visible { outline: 2px solid #90accb; outline-offset: 2px; }
 .goalsFilter[aria-pressed="true"] { background: #253954; border-color: #90accb; }
 .shotCount { margin: -3px 0 12px; color: #b6c4da; font-size: 12px; }
 
@@ -197,12 +195,13 @@
 }
 
 .timelineTooltip {
-  --readout-width: min(12rem, 100%);
-  position: absolute;
-  top: 6px;
-  left: clamp(0px, calc(var(--cursor-x) + 10px), calc(100% - var(--readout-width)));
-  width: var(--readout-width);
-  padding: 9px 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
+  align-content: start;
+  min-height: 80px;
+  margin: 0 0 12px;
+  padding: 9px 12px;
   border: 1px solid #526580;
   border-radius: 7px;
   background: #0c1729;
@@ -210,9 +209,8 @@
   font-size: 12px;
 }
 
-.timelineTooltip strong { display: block; margin-bottom: 6px; }
+.timelineTooltip strong { grid-column: 1 / -1; }
 .timelineTooltip div { display: flex; justify-content: space-between; gap: 6px; }
-.timelineTooltip div + div { margin-top: 4px; }
 .timelineTooltip b { color: var(--shot-color); font-variant-numeric: tabular-nums; }
 .timelineTooltip small { display: block; margin-top: 2px; color: #b6c4da; font-size: 10px; }
 
@@ -268,13 +266,6 @@
 
 .inspector { min-width: 0; padding: 14px; border: 1px solid var(--shot-edge); border-radius: 8px; background: #0e192c; }
 .inspector { scroll-margin-top: 20px; }
-.inspector label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
-.inspector select { width: 100%; min-width: 0; color-scheme: dark; }
-.inspector select:focus-visible {
-  border-color: #90accb;
-  outline: 2px solid #90accb;
-  outline-offset: 2px;
-}
 .detail p { margin: 14px 0 6px; }
 .detail h3 { margin: 0; font-size: 17px; }
 .detail dl { margin: 12px 0 0; }

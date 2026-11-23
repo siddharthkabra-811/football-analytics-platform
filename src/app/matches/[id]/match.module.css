@@ -41,12 +41,16 @@
   border: 1px solid #34445c;
   border-radius: 12px;
   background: #111d33;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
 }
+
+.sectionNav p { margin: 7px 12px 3px; color: #b6c4da; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
 
 .sectionNav a {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 36px;
   padding: 8px 12px;
   border-radius: 6px;
   color: #c8d6e9;
@@ -66,7 +70,10 @@
 
 @media (max-width: 700px) {
   .matchContent { grid-template-columns: minmax(0, 1fr); }
-  .sectionNav { position: static; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sectionNav { position: static; max-height: none; display: flex; overflow-x: auto; }
+  .sectionNav > div { display: flex; align-items: center; flex: none; }
+  .sectionNav p { display: none; }
+  .sectionNav a { white-space: nowrap; }
 }
 
 .scoreboard,

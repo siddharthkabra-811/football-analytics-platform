@@ -1,5 +1,6 @@
 import "server-only";
 import { getPitchData, inRange, isRecord, isScore, optionalText, type Match } from "../../pitch-api";
+import { footballMediaPath } from "../../football-media";
 
 function matchResource<T>(id: string, resource: string, parse: (data: Record<string, unknown>) => T) {
   const url = `https://api.pitchapi.dev/v1/matches/${encodeURIComponent(id)}/${resource}`;
@@ -58,26 +59,32 @@ export function getOverviewLineups(match: Match) {
   });
 }
 
+export type LineupProfile = { image: string | null; rating: number | null; minutes: number | null };
+
 export function getLineupRatings(match: Match) {
   const url = `https://api.pitchapi.dev/v1/matches/${encodeURIComponent(match.id)}/players`;
   return getPitchData(url, "Lineup ratings", (payload) => {
     if (!isRecord(payload) || !Array.isArray(payload.data)) throw new Error("Invalid player statistics");
-    const ratings = new Map<string, number>();
+    const profiles = new Map<string, LineupProfile>();
     for (const entry of payload.data as unknown[]) {
       if (!isRecord(entry) || !isRecord(entry.player) || !Array.isArray(entry.stats)
         || (entry.team_id !== match.homeId && entry.team_id !== match.awayId)) continue;
       const id = optionalText(entry.player.id);
+      if (!id) continue;
+      const image = process.env.NODE_ENV === "development" || process.env.FOOTBALL_PLAYER_IMAGES_ENABLED === "true"
+        ? footballMediaPath(entry.player.image_url, "players") : null;
+      const profile: LineupProfile = { image, rating: null, minutes: null };
       const top = (entry.stats as unknown[]).find((group) => isRecord(group) && group.key === "top_stats");
-      if (!id || !isRecord(top) || !isRecord(top.stats)) continue;
-      for (const field of Object.values(top.stats)) {
-        if (isRecord(field) && field.key === "rating_title" && isRecord(field.stat)
-          && inRange(field.stat.value, 10) && field.stat.value > 0) {
-          ratings.set(id, field.stat.value);
-          break;
+      if (isRecord(top) && isRecord(top.stats)) {
+        for (const field of Object.values(top.stats)) {
+          if (!isRecord(field) || !isRecord(field.stat)) continue;
+          if (field.key === "rating_title" && inRange(field.stat.value, 10) && field.stat.value > 0) profile.rating = field.stat.value;
+          if (field.key === "minutes_played" && isScore(field.stat.value)) profile.minutes = field.stat.value;
         }
       }
+      profiles.set(id, profile);
     }
-    return ratings;
+    return profiles;
   });
 }
 

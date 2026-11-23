@@ -10,7 +10,7 @@ const eventLabels = {
   penalty: "Penalty",
 };
 
-function linkedShot(event: MatchEvent, events: MatchEvent[], shots: MatchShot[]) {
+export function linkedShot(event: MatchEvent, events: MatchEvent[], shots: MatchShot[]) {
   if (event.kind !== "goal" || event.ownGoal || !event.playerId || !event.side) return undefined;
 
   const playerGoals = events.filter((entry) => entry.kind === "goal" && !entry.ownGoal

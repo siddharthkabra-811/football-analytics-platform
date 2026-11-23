@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ClubCrest } from "../../club-crest";
 import type { MatchShot, ShootingStats } from "../../pitch-api";
 import styles from "./shot-map.module.css";
 import { XgTimeline } from "./xg-timeline";
+import { Dropdown } from "./dropdown";
 
 const sides = ["home", "away"] as const;
 const periods = [
@@ -42,14 +44,16 @@ function GoalPlacement({ lateral, height }: NonNullable<MatchShot["placement"]>)
   );
 }
 
-export function ShotMap({ shots, stats, home, away, crests, initialShotId = "" }: {
+export function ShotMap({ shots, stats, home, away, crests, initialShotId = "", view }: {
   shots: MatchShot[];
   stats: ShootingStats | null;
   home: string;
   away: string;
   crests: Record<MatchShot["side"], string | null>;
   initialShotId?: string;
+  view: "shots" | "xg";
 }) {
+  const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
   const [goalsOnly, setGoalsOnly] = useState(false);
   const [period, setPeriod] = useState("");
@@ -94,15 +98,16 @@ export function ShotMap({ shots, stats, home, away, crests, initialShotId = "" }
         })}
       </div>
       <p className={styles.definition}>Expected goals (xG) estimates how likely each shot was to score. The chart sums shot values.
-        {(stats?.openPlayXg || stats?.setPlayXg) && " Open-play and set-play figures come from PitchAPI’s match totals."}</p>
-      <XgTimeline shots={shots} team={team} selectedId={selected?.id ?? ""}
+        {(stats?.openPlayXg || stats?.setPlayXg) && " Open-play and set-play figures use full-match totals."}</p>
+      {view === "xg" && <XgTimeline shots={shots} team={team} selectedId={selected?.id ?? ""}
         onSelect={(shot) => {
-          if (filter !== "all" && filter !== shot.side) setFilter("all");
-          if (period && period !== shot.period) setPeriod("");
-          setSelectedId(shot.id);
-        }} />
+          const { pathname, searchParams } = new URL(window.location.href);
+          searchParams.set("view", "shots");
+          searchParams.set("shot", shot.id);
+          router.push(`${pathname}?${searchParams}#shot-details`);
+        }} />}
 
-      <div className={styles.panel}>
+      {view === "shots" && <div className={styles.panel}>
         <div className={styles.toolbar}>
           <div className={styles.filters} role="group" aria-label="Filter shots by team">
             {(["all", ...sides] as const).map((value) => (
@@ -114,14 +119,10 @@ export function ShotMap({ shots, stats, home, away, crests, initialShotId = "" }
           </div>
           <div className={styles.mapFilters}>
             {availablePeriods.length > 1 && (
-              <select aria-label="Match period" value={period} onChange={(event) => {
-                const value = event.currentTarget.value;
+              <Dropdown label="Match period" compact value={period} onChange={(value) => {
                 if (value && selected?.period !== value) setSelectedId("");
                 setPeriod(value);
-              }}>
-                <option value="">All periods</option>
-                {availablePeriods.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-              </select>
+              }} options={[{ id: "", label: "All periods" }, ...availablePeriods.map(([id, label]) => ({ id, label }))]} />
             )}
             <button type="button" className={styles.goalsFilter} aria-pressed={goalsOnly} onClick={() => {
               if (!goalsOnly && selected && !selected.goal) setSelectedId("");
@@ -170,13 +171,9 @@ export function ShotMap({ shots, stats, home, away, crests, initialShotId = "" }
           </div>
 
           <div className={styles.inspector} id="shot-details">
-            <label htmlFor="shot-selection">Shot details</label>
-            <select id="shot-selection" value={selected?.id ?? ""} onChange={(event) => setSelectedId(event.target.value)} disabled={!visible.length}>
-              <option value="">{visible.length ? "Select a shot" : "No matching shots"}</option>
-              {visible.map((shot) => (
-                <option key={shot.id} value={shot.id}>{minuteLabel(shot)} {shot.player ?? team[shot.side]} · {shot.outcome}</option>
-              ))}
-            </select>
+            <Dropdown label="Shot details" searchLabel="Search shots" placeholder="Select a shot" emptyLabel="No matching shots" value={selected?.id ?? ""} onChange={setSelectedId} options={visible.map((shot) => ({
+              id: shot.id, label: `${minuteLabel(shot)} ${shot.player ?? team[shot.side]} · ${shot.outcome}`,
+            }))} />
             <div className={styles.detail} aria-live="polite">
               {selected ? (
                 <>
@@ -198,7 +195,7 @@ export function ShotMap({ shots, stats, home, away, crests, initialShotId = "" }
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </>
   );
 }

@@ -21,16 +21,22 @@ function read(value: string | null, kind: typeof metrics[number][2]) {
   return { number, label };
 }
 
-export function OverviewStats({ data, home, away }: { data: Period[]; home: Club; away: Club }) {
+export function OverviewStats({ data, home, away, full = false }: { data: Period[]; home: Club; away: Club; full?: boolean }) {
   const available = periods.flatMap(([key, label]) => {
     const items = data.find((period) => period.period === key)?.items;
     if (!items) return [];
-    const rows = metrics.flatMap(([metric, name, kind]) => {
+    const rows = full ? items.filter((item, index) => (item.home || item.away)
+      && items.findIndex((other) => other.key === item.key && (other.home || other.away)) === index)
+      .map(({ key, label, group, home, away }) => ({
+        metric: key, name: label, group,
+        homeValue: home === null ? null : { label: key === "BallPossesion" ? `${home.replace(/%$/, "")}%` : home, number: Number.parseFloat(home) },
+        awayValue: away === null ? null : { label: key === "BallPossesion" ? `${away.replace(/%$/, "")}%` : away, number: Number.parseFloat(away) },
+      })) : metrics.flatMap(([metric, name, kind]) => {
       for (const item of items) {
         if (item.key !== metric) continue;
         const homeValue = read(item.home, kind);
         const awayValue = read(item.away, kind);
-        if (homeValue || awayValue) return [{ metric, name, homeValue, awayValue }];
+        if (homeValue || awayValue) return [{ metric, name, group: "Top stats", homeValue, awayValue }];
       }
       return [];
     });
@@ -44,7 +50,7 @@ export function OverviewStats({ data, home, away }: { data: Period[]; home: Club
   return (
     <div className={styles.panel}>
       <header className={styles.panelHeader}>
-        <h3>Top stats</h3>
+        <h3>{full ? "Team comparison" : "Top stats"}</h3>
         <div className={styles.periods} role="group" aria-label="Stats period">
           {available.map(({ key, label }) => (
             <button key={key} type="button" aria-pressed={period.key === key} onClick={() => setSelected(key)}>{label}</button>
@@ -55,10 +61,14 @@ export function OverviewStats({ data, home, away }: { data: Period[]; home: Club
         <span><ClubCrest name={home.name} src={home.crest} className={styles.smallCrest} />{home.name}</span>
         <span>{away.name}<ClubCrest name={away.name} src={away.crest} className={styles.smallCrest} /></span>
       </div>
-      <dl className={styles.metrics} aria-label={`${period.label} comparison, ${home.name} then ${away.name}`}>
-        {period.rows.map(({ metric, name, homeValue, awayValue }) => {
+      {[...new Set(period.rows.map(({ group }) => group))].map((group) => (
+      <div className={styles.metrics} key={group}>
+        {full && <h4>{group}</h4>}
+        <dl className={styles.metricList} aria-label={`${period.label} comparison, ${home.name} then ${away.name}`}>
+        {period.rows.filter((row) => row.group === group).map(({ metric, name, homeValue, awayValue }) => {
           const sum = homeValue && awayValue ? homeValue.number + awayValue.number : 0;
-          const share = sum > 0 && homeValue ? homeValue.number / sum * 100 : null;
+          const share = Number.isFinite(sum) && sum > 0 && homeValue && awayValue && homeValue.number >= 0 && awayValue.number >= 0
+            ? homeValue.number / sum * 100 : null;
           return (
             <div key={metric} className={styles.metric}>
               <dt>{name}</dt>
@@ -72,7 +82,8 @@ export function OverviewStats({ data, home, away }: { data: Period[]; home: Club
             </div>
           );
         })}
-      </dl>
+        </dl>
+      </div>))}
     </div>
   );
 }
