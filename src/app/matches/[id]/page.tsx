@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cache, Suspense, type CSSProperties } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { ClubCrest } from "../../club-crest";
 import { getMatchBannerDetails, getMatchEvents, getMatchShots, getPremierLeagueResults, getShootingStats, isMatchDate, type MatchShot, type ShootingStats } from "../../pitch-api";
 import { SiteHeader } from "../../site-header";
-import { shareMetadata } from "../../share-metadata";
 import { kickoffLight, venueLocation } from "./kickoff-light";
 import styles from "./match.module.css";
 import { MatchTimeline } from "./match-timeline";
@@ -16,18 +15,7 @@ import timelineStyles from "./match-timeline.module.css";
 import { ShotMap } from "./shot-map";
 import shotStyles from "./shot-map.module.css";
 
-const getMatchResults = cache(getPremierLeagueResults);
-
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const path = `/matches/${encodeURIComponent(id)}`;
-  const match = (await getMatchResults())?.find((result) => result.id === id);
-  if (!match) return shareMetadata(path, "Match Overview | Ninety Atlas", "Explore Premier League match analysis on Ninety Atlas.");
-
-  const title = `${match.home} ${match.score.join("–")} ${match.away} | Ninety Atlas`;
-  const date = dateFormatter.format(new Date(`${match.date}T00:00:00Z`));
-  return shareMetadata(path, title, `Premier League · ${date}. Explore line-ups, shots, expected goals, and more.`);
-}
+export const metadata = { title: "Match Overview | Ninety Atlas" };
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", { dateStyle: "full", timeZone: "UTC" });
 const kickoffFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -72,7 +60,7 @@ export default async function MatchPage({
 }) {
   const [{ id }, { from, date, shot, view }] = await Promise.all([params, searchParams]);
   const activeView = resolveMatchView(view, shot);
-  const results = await getMatchResults();
+  const results = await getPremierLeagueResults();
   const match = results?.find((result) => result.id === id);
   if (results !== null && !match) notFound();
   const shotView = activeView === "shots" || activeView === "xg" ? activeView : null;
