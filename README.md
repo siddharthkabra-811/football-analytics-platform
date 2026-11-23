@@ -25,7 +25,7 @@ Keep the key server-side. Leave `PITCH_API_RESULTS_ENABLED` unset in public depl
 
 Both results views can show club crests from the PitchAPI CDN. Leave `PITCH_API_CRESTS_ENABLED` unset in public deployments until image display rights are confirmed. Both views use initials when a crest is missing or fails to load.
 
-Line-up portraits use `FOOTBALL_PLAYER_IMAGES_ENABLED=true` in local development, preview, and production. Enable it in Vercel Production after public player-photo display rights are confirmed, then redeploy. Portraits are served from the application origin, and the player card falls back to initials when a photo is unavailable.
+Line-up portraits are enabled by default in local development, preview, and production. Set `FOOTBALL_PLAYER_IMAGES_ENABLED=false` to explicitly disable them. Portraits are served from the application origin, and the player card falls back to initials when a photo is unavailable.
 
 After a deployment with portraits enabled, run `npm run smoke:portraits -- https://your-host/matches/your-match-id?view=lineups` with a match known to have player photos. The check fails if the page supplies no portrait URLs or none of its sampled images can be served.
 
