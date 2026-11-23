@@ -1,4 +1,5 @@
 import "server-only";
+import { footballMediaPath } from "./football-media";
 
 const premierLeagueId = "l_4WFCIZ";
 const resultsUrl = `https://api.pitchapi.dev/v1/leagues/${premierLeagueId}/matches?status=played`;
@@ -78,9 +79,7 @@ export function isScore(value: unknown): value is number {
 function crestUrl(team: unknown): string | null {
   if (process.env.PITCH_API_CRESTS_ENABLED !== "true" || !isRecord(team)) return null;
   const url = team.image_url;
-  return typeof url === "string" && /^https:\/\/cdn\.pitchapi\.dev\/(?:images\/)?teams\/[a-zA-Z0-9_-]+\.webp$/.test(url)
-    ? url
-    : null;
+  return footballMediaPath(url, "teams");
 }
 
 function parseResults(payload: unknown): Match[] {
@@ -164,8 +163,7 @@ export function getMatchBannerDetails(id: string) {
     const kickoff = typeof time_utc === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(time_utc)
       && isMatchDate(time_utc.slice(0, 10)) && Number.isFinite(Date.parse(time_utc)) ? time_utc : null;
     const image = league.image_url;
-    const leagueLogo = process.env.PITCH_API_CRESTS_ENABLED === "true" && typeof image === "string"
-      && /^https:\/\/cdn\.pitchapi\.dev\/(?:images\/)?leagues\/[a-zA-Z0-9_-]+\.webp$/.test(image) ? image : null;
+    const leagueLogo = process.env.PITCH_API_CRESTS_ENABLED === "true" ? footballMediaPath(image, "leagues") : null;
     return {
       kickoff, leagueLogo,
       round: optionalText(round_name),
@@ -311,7 +309,7 @@ export function getMatchEvents(match: Match) {
   });
 }
 
-export type MatchStat = { key: string; home: string | null; away: string | null };
+export type MatchStat = { key: string; label: string; group: string; home: string | null; away: string | null };
 
 export function getMatchStatPeriods(id: string) {
   const url = `https://api.pitchapi.dev/v1/matches/${encodeURIComponent(id)}/stats`;
@@ -325,7 +323,8 @@ export function getMatchStatPeriods(id: string) {
         if (!isRecord(group) || !Array.isArray(group.items)) return [];
         return (group.items as unknown[]).flatMap((item): MatchStat[] => {
           if (!isRecord(item) || typeof item.key !== "string") return [];
-          return [{ key: item.key, home: optionalText(item.home), away: optionalText(item.away) }];
+          return [{ key: item.key, label: optionalText(item.title) ?? item.key,
+            group: optionalText(group.group_name) ?? "Team stats", home: optionalText(item.home), away: optionalText(item.away) }];
         });
       });
       return [{ period: entry.period, items }];

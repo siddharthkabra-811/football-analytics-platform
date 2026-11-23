@@ -102,15 +102,6 @@ export function XgTimeline({ shots, team, selectedId, onSelect }: {
           {cursor !== null && (
             <div className={styles.timelineReadout} aria-hidden="true" style={{ "--cursor-x": `${cursorX}%` } as CSSProperties}>
               <span className={styles.timelineGuide} />
-              <div className={styles.timelineTooltip}>
-                <strong>{minuteLabel} · Running xG</strong>
-                {(["home", "away"] as const).map((side) => (
-                  <div data-side={side} key={side}>
-                    <span>{team[side]}{activity(side) && <small>{activity(side)}</small>}</span>
-                    <b>{runningXg(side)}</b>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
           {points.filter(({ shot }) => shot.goal && !isUnavailable(shot.side)).map(({ shot, x, total }) => (
@@ -127,6 +118,15 @@ export function XgTimeline({ shots, team, selectedId, onSelect }: {
             <span>0′</span><span style={{ left: `${45 / end * 100}%` }}>45′</span><span>FT</span>
           </div>
         </div>
+      </div>
+      <div className={styles.timelineTooltip} aria-hidden="true">
+        <strong>{cursor === null ? "Full match · xG" : `${minuteLabel} · Running xG`}</strong>
+        {(["home", "away"] as const).map((side) => (
+          <div data-side={side} key={side}>
+            <span>{team[side]}{cursor !== null && activity(side) && <small>{activity(side)}</small>}</span>
+            <b>{cursor === null && !isUnavailable(side) ? totals[side].toFixed(2) : runningXg(side)}</b>
+          </div>
+        ))}
       </div>
       <div className={`${styles.legend} ${styles.timelineLegend}`}>
         {(["home", "away"] as const).map((side) => (

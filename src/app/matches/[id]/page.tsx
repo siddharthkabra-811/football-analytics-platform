@@ -8,6 +8,8 @@ import { kickoffLight, venueLocation } from "./kickoff-light";
 import styles from "./match.module.css";
 import { MatchTimeline } from "./match-timeline";
 import { MatchOverview } from "./match-overview";
+import { resolveMatchView } from "./match-views";
+import { ExtraAnalysis } from "./extra-analysis";
 import { MatchSectionNav } from "./match-section-nav";
 import timelineStyles from "./match-timeline.module.css";
 import { ShotMap } from "./shot-map";
@@ -30,13 +32,14 @@ function WinnerBurst() {
   );
 }
 
-async function ShotAnalysis({ shots, stats, home, away, crests, shotId }: {
+async function ShotAnalysis({ shots, stats, home, away, crests, shotId, view }: {
   shots: Promise<MatchShot[] | null>;
   stats: Promise<ShootingStats | null>;
   home: string;
   away: string;
   crests: { home: string | null; away: string | null };
   shotId?: string;
+  view: "shots" | "xg";
 }) {
   const data = await shots;
   if (!data?.length) {
@@ -45,7 +48,7 @@ async function ShotAnalysis({ shots, stats, home, away, crests, shotId }: {
       : "No shots were recorded in the provider feed for this match."}</p>;
   }
   const selected = data.find((shot) => shot.id === shotId)?.id;
-  return <ShotMap key={selected} shots={data} stats={await stats} home={home} away={away} crests={crests} initialShotId={selected} />;
+  return <ShotMap key={`${view}:${selected ?? ""}`} view={view} shots={data} stats={await stats} home={home} away={away} crests={crests} initialShotId={selected} />;
 }
 
 export default async function MatchPage({
@@ -56,14 +59,14 @@ export default async function MatchPage({
   searchParams: Promise<{ from?: string | string[]; date?: string | string[]; shot?: string | string[]; view?: string | string[] }>;
 }) {
   const [{ id }, { from, date, shot, view }] = await Promise.all([params, searchParams]);
-  const activeView = view === "shots" || (view === undefined && typeof shot === "string") ? "shots"
-    : view === "timeline" ? "timeline" : "overview";
+  const activeView = resolveMatchView(view, shot);
   const results = await getPremierLeagueResults();
   const match = results?.find((result) => result.id === id);
   if (results !== null && !match) notFound();
-  const shots = match && activeView !== "overview" ? getMatchShots(match) : null;
+  const shotView = activeView === "shots" || activeView === "xg" ? activeView : null;
+  const shots = match && (shotView || activeView === "timeline") ? getMatchShots(match) : null;
   const events = match && activeView === "timeline" ? getMatchEvents(match) : null;
-  const shootingStats = match && activeView === "shots" ? getShootingStats(match.id) : null;
+  const shootingStats = match && shotView ? getShootingStats(match.id) : null;
   const banner = match ? await getMatchBannerDetails(match.id) : null;
   const venue = venueLocation(banner?.stadium);
   const kickoff = banner?.kickoff ? new Date(banner.kickoff) : null;
@@ -140,7 +143,8 @@ export default async function MatchPage({
           <div id="match-content" className={styles.matchContent}>
             <MatchSectionNav view={activeView} query={contextQuery.toString()} allowLegacyLink={view === undefined && !shot} />
             <div className={styles.detailPane}>
-              {activeView === "overview" && <MatchOverview match={match} />}
+              {(activeView === "overview" || activeView === "stats" || activeView === "lineups" || activeView === "head-to-head")
+                && <MatchOverview match={match} view={activeView} />}
               {events && shots && (
                 <section className={timelineStyles.section} aria-labelledby="match-timeline">
                   <h2 id="match-timeline">Match timeline</h2>
@@ -149,15 +153,18 @@ export default async function MatchPage({
                   </Suspense>
                 </section>
               )}
-              {shootingStats && shots && (
+              {shotView && shootingStats && shots && (
                 <section className={shotStyles.section} aria-labelledby="shot-analysis">
-                  <h2 id="shot-analysis">Shot analysis</h2>
+                  <h2 id="shot-analysis">{shotView === "xg" ? "Expected goals" : "Shot analysis"}</h2>
                   <Suspense fallback={<p className={shotStyles.notice} role="status">Loading shot data…</p>}>
-                    <ShotAnalysis shots={shots} stats={shootingStats} home={match.home} away={match.away}
+                    <ShotAnalysis view={shotView} shots={shots} stats={shootingStats} home={match.home} away={match.away}
                       crests={{ home: match.homeCrest, away: match.awayCrest }} shotId={typeof shot === "string" ? shot : undefined} />
                   </Suspense>
                 </section>
               )}
+              {(activeView === "momentum" || activeView === "players" || activeView === "passing" || activeView === "heatmaps"
+                || activeView === "advanced" || activeView === "keepers" || activeView === "theatre")
+                && <ExtraAnalysis view={activeView} match={match} query={contextQuery.toString()} />}
             </div>
           </div>
         )}

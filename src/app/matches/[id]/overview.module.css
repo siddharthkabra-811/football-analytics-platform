@@ -56,6 +56,9 @@
 .smallCrest { display: grid; flex: none; width: 24px; height: 24px; place-items: center; color: var(--muted); font-size: 8px; }
 .smallCrest img { width: 100%; height: 100%; }
 .metrics { margin: 0; padding: 8px clamp(12px, 2.6vw, 22px) 16px; }
+.metrics + .metrics { border-top: 1px solid var(--edge); }
+.metrics h4 { margin: 8px 0 4px; font-size: 13px; }
+.metricList { margin: 0; }
 .metric {
   position: relative;
   display: grid;
@@ -88,6 +91,31 @@
 .boxLeft { left: -1px; }
 .boxRight { right: -1px; }
 .formationPlayer { position: absolute; display: grid; justify-items: center; translate: -50% -50%; width: 60px; }
+.formationPlayer[data-open="true"] { z-index: 2; }
+.playerTrigger { position: relative; display: grid; justify-items: center; border: 0; border-radius: 999px; padding: 0; background: transparent; cursor: pointer; }
+.profileCard {
+  position: absolute;
+  z-index: 3;
+  inset: auto auto calc(100% + 8px) 50%;
+  width: clamp(145px, 27cqw, 215px);
+  padding: 9px;
+  border: 1px solid #617991;
+  border-radius: 8px;
+  background: #111d33;
+  color: #eef5fb;
+  box-shadow: 0 6px 20px #081322c4;
+  font-size: 11px;
+  pointer-events: none;
+}
+.formationPlayer[data-side="away"] .profileCard { inset-inline: auto 50%; }
+.formationPlayer[data-upper="true"] .profileCard { top: calc(100% + 15px); bottom: auto; }
+.profileHeader { display: flex; align-items: center; gap: 7px; }
+.profileHeader strong { font-size: 12px; }
+.profileCard p, .profileCard ul { margin: 4px 0 0; color: #c1d0e2; }
+.profileCard ul { padding-inline-start: 14px; }
+.playerPortrait { display: grid; flex: none; place-items: center; width: 35px; height: 35px; border-radius: 5px; background: #233650; overflow: hidden; }
+.playerPortrait img { width: 35px; height: 35px; }
+.profileStats { display: flex; flex-wrap: wrap; gap: 4px 9px; }
 .pitchNumber {
   display: grid;
   place-items: center;

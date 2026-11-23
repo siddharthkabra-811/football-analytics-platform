@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { ClubCrest } from "../../club-crest";
 import { getMatchEvents, getMatchStatPeriods, type Match, type MatchEvent } from "../../pitch-api";
-import { getHeadToHead, getLineupRatings, getOverviewLineups } from "./overview-data";
+import { getHeadToHead, getLineupRatings, getOverviewLineups, type LineupProfile } from "./overview-data";
+import { FormationPlayer } from "./formation-player";
 import { overviewMetrics } from "./overview-metrics";
 import { OverviewStats } from "./overview-stats";
 import styles from "./overview.module.css";
@@ -18,14 +19,14 @@ function clubsFor(match: Match) {
   return { home: { name: match.home, crest: match.homeCrest }, away: { name: match.away, crest: match.awayCrest } };
 }
 
-async function StatsPanel({ data, match }: { data: ReturnType<typeof getMatchStatPeriods>; match: Match }) {
+async function StatsPanel({ data, match, full }: { data: ReturnType<typeof getMatchStatPeriods>; match: Match; full: boolean }) {
   const clubs = clubsFor(match);
   const keys = new Set<string>(overviewMetrics.map(([key]) => key));
   const periods = (await data ?? []).map(({ period, items }) => ({
     period,
-    items: items.filter(({ key }) => keys.has(key)),
+    items: full ? items : items.filter(({ key }) => keys.has(key)),
   }));
-  return <OverviewStats data={periods} home={clubs.home} away={clubs.away} />;
+  return <OverviewStats data={periods} home={clubs.home} away={clubs.away} full={full} />;
 }
 
 const incidentTypes = {
@@ -76,13 +77,13 @@ function IncidentMark({ kind, minute }: { kind: IncidentKind; minute?: string })
 
 function Roster({ players, ratings, incidents }: {
   players: Player[];
-  ratings: Map<string, number> | null;
+  ratings: Map<string, LineupProfile> | null;
   incidents: Map<string, Incident[]>;
 }) {
   return (
     <ul className={styles.roster} role="list">
       {players.map((player) => {
-        const rating = ratings?.get(player.id);
+        const rating = ratings?.get(player.id)?.rating;
         return (
           <li key={player.id}>
             <span className={styles.shirt}>{player.number ?? "—"}</span>
@@ -90,7 +91,7 @@ function Roster({ players, ratings, incidents }: {
             <span className={styles.rosterIncidents}>
               {incidents.get(player.id)?.map(({ kind, minute }, index) => <IncidentMark key={index} kind={kind} minute={minute} />)}
             </span>
-            {rating !== undefined && <span className={styles.rating} aria-label={`Rating ${rating.toFixed(1)}`}>{rating.toFixed(1)}</span>}
+            {rating != null && <span className={styles.rating} aria-label={`Rating ${rating.toFixed(1)}`}>{rating.toFixed(1)}</span>}
           </li>
         );
       })}
@@ -121,7 +122,7 @@ async function LineupsPanel({ data, ratings, events, match }: {
       <header className={styles.panelHeader}><h3 id="overview-lineups">Lineups</h3></header>
       {showPitch && (
         <div className={styles.formation}>
-          <div className={styles.field} aria-hidden="true">
+          <div className={styles.field} role="group" aria-label="Starting formation">
             <div className={styles.midfield} />
             <div className={styles.boxLeft} />
             <div className={styles.boxRight} />
@@ -133,15 +134,15 @@ async function LineupsPanel({ data, ratings, events, match }: {
               const history = incidents[side].get(player.id) ?? [];
               const marks = [...new Set(history.map(({ kind }) => kind))];
               return (
-                <div key={`${side}-${player.id}`} className={styles.formationPlayer} data-side={side}
-                  style={{ left: `${left}%`, top: `${top}%` }}
-                  title={[player.name, ...history.map(({ kind, minute }) => `${incidentTypes[kind].label} ${minute}`)].join(" · ")}>
+                <FormationPlayer key={`${side}-${player.id}`} name={player.name} club={clubs[side].name}
+                  number={player.number} captain={player.captain} profile={playerRatings?.get(player.id)} side={side} left={left} top={top}
+                  history={history.map(({ kind, minute }) => `${incidentTypes[kind].label} ${minute}`)}>
                   <span className={styles.pitchNumber}>{player.number ?? "•"}</span>
                   {marks.length > 0 && <span className={styles.pitchIncidents}>
                     {marks.map((kind) => <IncidentMark key={kind} kind={kind} />)}
                   </span>}
                   <small>{player.name.split(/\s+/).at(-1)}</small>
-                </div>
+                </FormationPlayer>
               );
             }) ?? [])}
           </div>
@@ -243,24 +244,20 @@ async function HeadToHeadPanel({ data, match }: { data: ReturnType<typeof getHea
   );
 }
 
-export function MatchOverview({ match }: { match: Match }) {
-  const stats = getMatchStatPeriods(match.id);
-  const lineups = getOverviewLineups(match);
-  const ratings = getLineupRatings(match);
-  const events = getMatchEvents(match);
-  const history = getHeadToHead(match);
+export function MatchOverview({ match, view }: { match: Match; view: "overview" | "stats" | "lineups" | "head-to-head" }) {
+  const title = { overview: "Match overview", stats: "Stats", lineups: "Line-ups", "head-to-head": "Head-to-head" }[view];
   return (
     <section className={styles.overview} aria-labelledby="match-overview">
-      <h2 id="match-overview">Match overview</h2>
-      <Suspense fallback={<p className={styles.notice} role="status">Loading team stats…</p>}>
-        <StatsPanel data={stats} match={match} />
-      </Suspense>
-      <Suspense fallback={<p className={styles.notice} role="status">Loading lineups…</p>}>
-        <LineupsPanel data={lineups} ratings={ratings} events={events} match={match} />
-      </Suspense>
-      <Suspense fallback={<p className={styles.notice} role="status">Loading head-to-head…</p>}>
-        <HeadToHeadPanel data={history} match={match} />
-      </Suspense>
+      <h2 id="match-overview">{title}</h2>
+      {(view === "overview" || view === "stats") && <Suspense fallback={<p className={styles.notice} role="status">Loading team stats…</p>}>
+        <StatsPanel data={getMatchStatPeriods(match.id)} match={match} full={view === "stats"} />
+      </Suspense>}
+      {view === "lineups" && <Suspense fallback={<p className={styles.notice} role="status">Loading lineups…</p>}>
+        <LineupsPanel data={getOverviewLineups(match)} ratings={getLineupRatings(match)} events={getMatchEvents(match)} match={match} />
+      </Suspense>}
+      {view === "head-to-head" && <Suspense fallback={<p className={styles.notice} role="status">Loading head-to-head…</p>}>
+        <HeadToHeadPanel data={getHeadToHead(match)} match={match} />
+      </Suspense>}
     </section>
   );
 }

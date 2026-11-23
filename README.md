@@ -27,7 +27,11 @@ Both results views can show club crests from the PitchAPI CDN. Leave `PITCH_API_
 
 Match Overview uses PitchAPI’s match shots endpoint. The map shows where each attempt was struck on a 105 × 68 metre pitch. The home team attacks right and the away team’s coordinates are rotated so it attacks left, with each team using the same direction across halves. The team xG total sums the available pre-shot probabilities. Missing values are shown separately from zero, and incomplete team totals show how many shots were rated.
 
-The Overview tab combines PitchAPI team stats, lineups, player ratings, and head-to-head history. Comparison bars use each club’s share of the displayed metric. The accurate-passes bar compares completed pass counts, with each club’s completion percentage shown alongside. Head-to-head totals reflect meetings reported by the provider.
+The match views combine PitchAPI team stats, lineups, player ratings, and head-to-head history. Comparison bars use each club’s share of the displayed metric. The accurate-passes bar compares completed pass counts, with each club’s completion percentage shown alongside. Head-to-head totals reflect meetings reported by the provider.
+
+Match navigation separates the full team stats, lineups, and head-to-head from Overview. Shots and xG share the same validated shot feed. Momentum uses PitchAPI's signed pressure index, and Heatmaps use action counts in the provider's shared home-left-to-right grid. Passing networks cover the provider's recorded window, normally until the first substitution, and their receivers are inferred. Advanced and Keepers use provider team and player metrics. Theatre replays recorded events and shot positions at an even playback pace.
+
+The momentum, stats, lineups, player stats, passing networks, heatmaps, advanced team and player analytics, head-to-head, events, and shots endpoints returned data for the sampled Tottenham–Ipswich and Manchester City–Fulham fixtures. Coverage may differ for other matches. See the [PitchAPI definitions](https://pitchapi.dev/) for individual metrics.
 
 Shots on target and open-play and set-play xG are the full-match values from PitchAPI’s team-stats endpoint. The cumulative chart and its per-minute changes are calculated from the shot feed, so the chart’s totals can differ from the provider’s team aggregates. Own goals, when flagged by the shot feed, are excluded from shot and xG totals.
 
