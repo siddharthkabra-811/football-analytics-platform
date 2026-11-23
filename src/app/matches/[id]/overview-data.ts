@@ -1,6 +1,6 @@
 import "server-only";
 import { getPitchData, inRange, isRecord, isScore, optionalText, type Match } from "../../pitch-api";
-import { footballMediaPath } from "../../football-media";
+import { footballMediaPath, playerPortraitsEnabled } from "../../football-media";
 
 function matchResource<T>(id: string, resource: string, parse: (data: Record<string, unknown>) => T) {
   const url = `https://api.pitchapi.dev/v1/matches/${encodeURIComponent(id)}/${resource}`;
@@ -65,16 +65,18 @@ export function getLineupRatings(match: Match) {
   const url = `https://api.pitchapi.dev/v1/matches/${encodeURIComponent(match.id)}/players`;
   return getPitchData(url, "Lineup ratings", (payload) => {
     if (!isRecord(payload) || !Array.isArray(payload.data)) throw new Error("Invalid player statistics");
+    const showPortraits = playerPortraitsEnabled();
     const profiles = new Map<string, LineupProfile>();
     for (const entry of payload.data as unknown[]) {
-      if (!isRecord(entry) || !isRecord(entry.player) || !Array.isArray(entry.stats)
+      if (!isRecord(entry) || !isRecord(entry.player)
         || (entry.team_id !== match.homeId && entry.team_id !== match.awayId)) continue;
       const id = optionalText(entry.player.id);
       if (!id) continue;
-      const image = process.env.NODE_ENV === "development" || process.env.FOOTBALL_PLAYER_IMAGES_ENABLED === "true"
+      const image = showPortraits
         ? footballMediaPath(entry.player.image_url, "players") : null;
       const profile: LineupProfile = { image, rating: null, minutes: null };
-      const top = (entry.stats as unknown[]).find((group) => isRecord(group) && group.key === "top_stats");
+      const top = Array.isArray(entry.stats)
+        ? (entry.stats as unknown[]).find((group) => isRecord(group) && group.key === "top_stats") : undefined;
       if (isRecord(top) && isRecord(top.stats)) {
         for (const field of Object.values(top.stats)) {
           if (!isRecord(field) || !isRecord(field.stat)) continue;
