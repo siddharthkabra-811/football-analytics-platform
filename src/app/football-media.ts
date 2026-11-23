@@ -1,7 +1,7 @@
 import "server-only";
 
 export function playerPortraitsEnabled() {
-  return process.env.FOOTBALL_PLAYER_IMAGES_ENABLED === "true";
+  return process.env.FOOTBALL_PLAYER_IMAGES_ENABLED !== "false";
 }
 
 export function footballMediaPath(value: unknown, kind: "teams" | "leagues" | "players") {
