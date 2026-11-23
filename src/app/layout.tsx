@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { brand } from "./brand";
 import "./globals.css";
 import { shareMetadata, siteUrl } from "./share-metadata";
@@ -29,7 +30,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${barlowCondensed.variable}`}>
       {/* Browser extensions can add attributes to body before hydration. */}
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
