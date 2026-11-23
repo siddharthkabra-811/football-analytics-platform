@@ -25,6 +25,11 @@ Keep the key server-side. Leave `PITCH_API_RESULTS_ENABLED` unset in public depl
 
 Both results views can show club crests from the PitchAPI CDN. Leave `PITCH_API_CRESTS_ENABLED` unset in public deployments until image display rights are confirmed. Both views use initials when a crest is missing or fails to load.
 
+Line-up portraits use `FOOTBALL_PLAYER_IMAGES_ENABLED=true` in local development, preview, and production. Enable it in Vercel Production after public player-photo display rights are confirmed, then redeploy. Portraits are served from the application origin, and the player card falls back to initials when a photo is unavailable.
+
+After a deployment with portraits enabled, run `npm run smoke:portraits -- https://your-host/matches/your-match-id?view=lineups` with a match known to have player photos. The check fails if the page supplies no portrait URLs or none of its sampled images can be served.
+
+
 Match Overview uses PitchAPI’s match shots endpoint. The map shows where each attempt was struck on a 105 × 68 metre pitch. The home team attacks right and the away team’s coordinates are rotated so it attacks left, with each team using the same direction across halves. The team xG total sums the available pre-shot probabilities. Missing values are shown separately from zero, and incomplete team totals show how many shots were rated.
 
 The match views combine PitchAPI team stats, lineups, player ratings, and head-to-head history. Comparison bars use each club’s share of the displayed metric. The accurate-passes bar compares completed pass counts, with each club’s completion percentage shown alongside. Head-to-head totals reflect meetings reported by the provider.

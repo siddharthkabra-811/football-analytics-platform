@@ -1,9 +1,11 @@
+import { playerPortraitsEnabled } from "../../../../../football-media";
+
 export async function GET(_request: Request, { params }: {
   params: Promise<{ version: string; kind: string; file: string }>;
 }) {
   const { version, kind, file } = await params;
   const enabled = kind === "players"
-    ? process.env.NODE_ENV === "development" || process.env.FOOTBALL_PLAYER_IMAGES_ENABLED === "true"
+    ? playerPortraitsEnabled()
     : process.env.PITCH_API_CRESTS_ENABLED === "true";
   if (!enabled || !["images", "original"].includes(version) || !["teams", "leagues", "players"].includes(kind)
     || !/^[a-zA-Z0-9_-]{1,100}\.webp$/.test(file)) return new Response(null, { status: 404 });
