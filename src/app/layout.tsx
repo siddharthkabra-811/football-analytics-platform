@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/next";
@@ -18,16 +18,26 @@ const barlowCondensed = localFont({
   variable: "--font-display",
 });
 
+export const viewport: Viewport = { themeColor: "#0b1324" };
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://ninetyatlas.vercel.app"),
-  title: "Ninety Atlas",
+  title: "Ninety Atlas | Premier League Football Analytics",
   description: "Post-match football analytics. Explore Premier League results, line-ups, shots, and expected goals.",
-  icons: { icon: "/ninety-atlas.svg" },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/ninety-atlas.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+    apple: { url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" },
+  },
   openGraph: {
     type: "website",
+    locale: "en_GB",
     url: "https://ninetyatlas.vercel.app/",
     siteName: "Ninety Atlas",
-    title: "Ninety Atlas",
+    title: "Ninety Atlas | Premier League Football Analytics",
     description: "Post-match football analytics. Explore Premier League results, line-ups, shots, and expected goals.",
     images: [{
       url: "https://ninetyatlas.vercel.app/ninety-atlas-share-v2.jpg",
@@ -40,7 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ninety Atlas",
+    title: "Ninety Atlas | Premier League Football Analytics",
     description: "Post-match football analytics. Explore Premier League results, line-ups, shots, and expected goals.",
     images: [{
       url: "https://ninetyatlas.vercel.app/ninety-atlas-share-v2.jpg",
