@@ -15,7 +15,13 @@ import timelineStyles from "./match-timeline.module.css";
 import { ShotMap } from "./shot-map";
 import shotStyles from "./shot-map.module.css";
 
-export const metadata = { title: "Match Overview | Ninety Atlas" };
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return {
+    title: "Match Overview | Ninety Atlas",
+    alternates: { canonical: `/matches/${encodeURIComponent(id)}` },
+  };
+}
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", { dateStyle: "full", timeZone: "UTC" });
 const kickoffFormatter = new Intl.DateTimeFormat("en-GB", {

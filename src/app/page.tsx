@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { brand } from "./brand";
 import styles from "./home.module.css";
 import { RecentResults } from "./recent-results";
@@ -8,6 +9,8 @@ const matchesTarget = "#recent-results";
 type HomePageProps = {
   searchParams: Promise<{ date?: string | string[] }>;
 };
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const { date } = await searchParams;
